@@ -4,24 +4,23 @@
  * @return {boolean}
  */
 
- const canFinish = function (numCourses, prerequisites) {
+const canFinish = function (numCourses, prerequisites) {
   const visited = new Set()
   const traced = new Set()
-  const graph = {}
+  const graph = new Map()
 
   // make graph
-  prerequisites.forEach(prerequisite => {
-    const [end, start] = prerequisite
-    if (!graph[start]) {
-      graph[start] = []
-    }
+  for (let i = 0; i < numCourses; i++) {
+    graph.set(i, [])
+  }
 
-    graph[start].push(String(end))
-  })
+  for (const [v, e] of prerequisites) {
+    graph.get(v).push(e)
+  }
 
   // traverse dfs
-  for (const key of Object.keys(graph)) {
-    if (!dfs(key)) {
+  for (let i = 0; i < numCourses; i++) {
+    if (!dfs(i)) {
       return false
     }
   }
@@ -34,29 +33,25 @@
     if (traced.has(key)) {
       return false
     }
-  
+
     // it is okay (it will not be cycle)
     if (visited.has(key)) {
       return true
     }
-  
-    traced.add(key)
-    visited.add(key)
-  
-    // there is no node to traverse
-    if (graph[key] == null) {
-      traced.delete(key)
-      return true
-    }
 
-    for (const end of graph[key]) {
-      if (!dfs(end)) {
+    traced.add(key)
+
+    const edges = graph.get(key)
+
+    for (const edge of edges) {
+      if (!dfs(edge)) {
         return false
       }
     }
-  
+
     traced.delete(key)
-  
+    visited.add(key)
+
     return true
   }
 }
